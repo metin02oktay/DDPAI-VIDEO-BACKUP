@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Araç Kamera Yedekleme Arayüzü</title>
+    <style>
+        :root {
+            --primary: #4facfe;
+            --secondary: #00f2fe;
+            --success: #2ecc71;
+            --gray: #95a5a6;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1, h2 { text-align: center; color: var(--text); }
+        h1 { margin-bottom: 30px; font-weight: 700; }
+        .status-board {
+            display: flex;
+            justify-content: space-around;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+        .status-item { text-align: center; font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .status-item span { font-size: 36px; font-weight: 800; display: block; margin-top: 10px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+        .video-list { list-style: none; padding: 0; display: grid; gap: 20px; grid-template-columns: 1fr; }
+        .video-card {
+            background: #fff;
+            border: 1px solid #eaeaea;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .video-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+        .video-meta { margin-bottom: 15px; font-size: 15px; line-height: 1.6; }
+        .video-meta strong { color: #34495e; }
+        .badge { 
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            font-size: 12px; 
+            color: #fff; 
+            font-weight: 600; 
+            display: inline-block; 
+            margin: 0 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .bg-green { background-color: var(--success); }
+        .bg-gray { background-color: var(--gray); }
+        video {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            background: #000;
+            outline: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 Yedekleme Kontrol Paneli</h1>
+        
+        <div class="status-board">
+            <div class="status-item">İndirme Kuyruğu<span id="q_download">0</span></div>
+            <div class="status-item">Yükleme Kuyruğu<span id="q_upload">0</span></div>
+        </div>
+
+        <h2>Son Algılanan Dosyalar</h2>
+        <ul class="video-list">
+            {% for video in videolar %}
+            <li class="video-card">
+                <div class="video-meta">
+                    <strong>Dosya:</strong> {{ video.name }}<br>
+                    <strong>İndirme:</strong> <span class="badge {{ 'bg-green' if video.is_download else 'bg-gray' }}">{{ "Tamamlandı" if video.is_download else "Bekliyor" }}</span> 
+                    <strong>Yükleme:</strong> <span class="badge {{ 'bg-green' if video.is_upload else 'bg-gray' }}">{{ "Tamamlandı" if video.is_upload else "Bekliyor" }}</span>
+                </div>
+                
+                <!-- İndirilmiş ve henüz yüklenip silinmemişse (is_upload 0) veya dosyası varsa göster -->
+                {% if video.is_download and not video.is_upload and video.file_path %}
+                <video controls preload="metadata">
+                    <source src="/video/{{ video.name }}" type="video/mp4">
+                    Tarayıcınız HTML5 video desteklemiyor.
+                </video>
+                {% endif %}
+            </li>
+            {% endfor %}
+            {% if not videolar %}
+            <li class="video-card" style="text-align: center; color: #7f8c8d;">
+                Henüz video kaydı bulunmuyor.
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <script>
+        // Kuyruk durumunu her 5 saniyede bir günceller
+        function fetchStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('q_download').innerText = data.q_download;
+                    document.getElementById('q_upload').innerText = data.q_upload;
+                }).catch(err => console.error("Durum alınamadı", err));
+        }
+        setInterval(fetchStatus, 5000);
+        fetchStatus();
+    </script>
+</body>
+</html>
