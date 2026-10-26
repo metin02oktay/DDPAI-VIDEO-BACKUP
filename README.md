@@ -68,4 +68,5 @@ Proje, eşzamanlı çalışan **5 farklı arkaplan işçisinden (worker)** oluş
 5. 🏠 **WiFi Uploader:** Ev ağına (ASUS) bağlıyken, indirilen video dosyalarını bulut depolamaya yükleyerek veritabanına videonun doğrudan URL kaydını ekler.
 
 > ⚠️ **Not:** Root ayrıcalıkları; `su`, `cmd wifi`, `svc wifi` ve `ip addr` gibi doğrudan Android OS shell komutlarını kullanabilmek için zorunludur.
+
 > **Not2:** Bu proje bağımsız olarak geliştirilmiş resmi olmayan (unofficial) bir otomasyon aracıdır. DDPAI markasıyla herhangi bir resmi bağı veya ortaklığı bulunmamaktadır.
